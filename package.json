@@ -1,0 +1,29 @@
+{
+  "name": "electron-youtube-downloader",
+  "version": "0.0.1",
+  "description": "4th try to create youtube downloader on Electron",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarkSmersh/electron-youtube-downloader.git"
+  },
+  "keywords": [
+    "electron",
+    "youtube",
+    "node"
+  ],
+  "author": "MarkSmersh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarkSmersh/electron-youtube-downloader/issues"
+  },
+  "homepage": "https://github.com/MarkSmersh/electron-youtube-downloader#readme",
+  "dependencies": {
+    "electron": "^17.1.0",
+    "ffmpeg-static": "^5.0.0",
+    "ytdl-core": "^4.11.0"
+  }
+}

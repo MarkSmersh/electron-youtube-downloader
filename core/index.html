@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nice try, bitch</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/1bc4fffc3b.js" crossorigin="anonymous"></script>
+    <script src="app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="info">
+            <div class="video-data">
+                <h1 id="title">123</h1>
+                <div class="thumbnail-container">
+                    <img id="thumbnail" src="assets/load-thumbnail.gif">
+                    <p id="duration">0:00</p>   
+                </div>
+            </div>
+            <div class="download-action">
+                <div class="download-data">
+                    <div>
+                        <p id="format">full</p>
+                        <ul id="formats">
+                            <li>1</li>
+                            <li>2</li>
+                            <li>3</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p id="quality">100р</p>
+                        <ul id="qualities">
+                            <li>1</li>
+                            <li>2</li>
+                            <li>3</li>
+                            <li>4</li>
+                            <li>5</li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="download">Download</div>
+            </div>
+        </div>
+        <div class="link-container">
+            <input id="link"
+                value=""
+                placeholder="Insert link into me..." 
+                onblur="randomPlaceholder(this)"
+                onfocus="this.placeholder = '' "
+                oninput="isValue(this)"
+            >
+            <i id="button" class="fa-solid fa-magnifying-glass" onclick="isClear(this)"></i>
+        </div>
+    </div>
+</body>
+</html>

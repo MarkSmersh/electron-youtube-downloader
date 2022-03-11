@@ -1,0 +1,18 @@
+{
+    "codecs": [
+        "-loglevel", "8", "-hide_banner",
+        "-i", "pipe:3", 
+        "-i", "pipe:4",
+        "-map", "0:a?", 
+        "-map", "1:v?",
+        "-c", "copy",
+        "-f", "matroska", "pipe:5"
+    ],
+    "settings": {
+        "windowsHide": true,
+        "stdio": [
+            "inherit", "inherit", "inherit",
+            "pipe", "pipe", "pipe"
+        ]
+    }
+}
