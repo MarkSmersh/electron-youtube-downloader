@@ -65,8 +65,8 @@ function isValue (e) {
     }
 }
 
-// function changeHeight (e) {
-//     console.log(1)
-//     e.style.width = e.parentElement
-//     console.log(e.parentElement.style.width)
-// }
+function calculateLength() {
+    console.log('trigger')
+    const calculateLength = new Event('calculateLength')
+    window.dispatchEvent(calculateLength)
+}

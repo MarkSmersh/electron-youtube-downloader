@@ -7,6 +7,8 @@ const Stream = require ('stream').Transform
 const cp = require('child_process')
 const ffmpegPath = require ('ffmpeg-static')
 const getFFSet = require ('./core/utils/set')
+const formatFilter = require ('./core/utils/formatFilter')
+const { deepStrictEqual } = require('assert')
 
 
 const createWindow = () => {    
@@ -93,5 +95,21 @@ ipcMain.handle('pic', async (e, url, uri) => {
             resolve({"ok": false, "error": e.message})
         })
     })
+    return result
+})
+
+ipcMain.handle('filter', (e, formats) => {
+    const result = formatFilter (formats)
+    return result
+})
+
+ipcMain.handle('write', (e, file, data) => {
+    fs.writeFileSync(file, JSON.stringify(data))
+    return true
+})
+
+ipcMain.handle('read', async (e, file) => {
+    const data = fs.readFile(file)
+    const result = await JSON.parse(data)
     return result
 })

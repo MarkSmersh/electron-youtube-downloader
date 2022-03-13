@@ -143,19 +143,26 @@ i.fa-xmark{
     /* display: inline-block; */
 }
 
-.download-data > div::after {
+.download-data div > p {
+    height: 100%;
+    width: 100%;
+    top: 5px;
+    position: relative;
+}
+
+.download-data div > p::after {
     transform-origin: center;
     display: inline-block;
     content: "☝";
     color: white;
     transition: 0.2s;
-    margin-left: 10px;
-    position: absolute;
-    margin-left: 10%;
+    /* margin-left: 20%; */
+    position: relative;
+    left: 5px;
     margin-bottom: 5px;
 }
 
-.download-data > div:hover::after {
+.download-data div:hover > p::after {
     transform: rotate(-180deg);
 }
 
@@ -245,13 +252,12 @@ i.fa-xmark{
     color: red;
 }
 
-.download-data div > ul:hover {
-    opacity: 100%;
+.download-data div:hover > ul {
+    display: flex;
 }
 
 .download-data div ul {
-    display: flex;
-    opacity: 0%;
+    display: none;
     background-color: none;
     width: 100%;
     border-radius: 25px;
@@ -264,8 +270,8 @@ i.fa-xmark{
     z-index: 1;
     margin-bottom: -5px;
     position: relative;
-    padding-bottom: 38px;
-    bottom: -38px;
+    padding-bottom: 20px;
+    top: 20px;
 }
 
 .download-data div ul > li {
@@ -277,6 +283,8 @@ i.fa-xmark{
     display: flex;
     justify-content: center;
     align-items: center;
+    border-top: 1px solid #23272a;
+    border-bottom: 1px solid #23272a;
 }
 
 .download-data div ul > li:last-child {
