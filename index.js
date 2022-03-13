@@ -8,19 +8,26 @@ const cp = require('child_process')
 const ffmpegPath = require ('ffmpeg-static')
 const getFFSet = require ('./core/utils/set')
 const formatFilter = require ('./core/utils/formatFilter')
-const { deepStrictEqual } = require('assert')
+
 
 
 const createWindow = () => {    
-    new BrowserWindow ({ width: 1000, height: 600, 
+    const win = new BrowserWindow ({ width: 1000, height: 600, 
         webPreferences: {
             nodeIntegration: true,
             preload: path.join(__dirname, './core/preload.js')
         },
+        titleBarStyle: 'default',
+        titleBarOverlay: {
+            color: '#23272a',
+            symbolColor: '#FFFFFF'
+        },
+        resizable: false,
         fullscreen: false,
-        resizable: false
+        fullscreenable: false,
     })
-        .loadFile('./core/index.html')
+    win.loadFile('./core/index.html')
+    win.removeMenu()
 }
 
 app.on('ready', () => {
@@ -109,7 +116,7 @@ ipcMain.handle('write', (e, file, data) => {
 })
 
 ipcMain.handle('read', async (e, file) => {
-    const data = fs.readFile(file)
+    const data = fs.readFileSync(file)
     const result = await JSON.parse(data)
     return result
 })

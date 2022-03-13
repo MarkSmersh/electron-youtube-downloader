@@ -155,7 +155,7 @@ i.fa-xmark{
     display: inline-block;
     content: "☝";
     color: white;
-    transition: 0.2s;
+    transition: 0.2s ease;
     /* margin-left: 20%; */
     position: relative;
     left: 5px;
@@ -219,13 +219,22 @@ i.fa-xmark{
     height: 100%;
 }
 
-/* #info {
+#info {
     display: none;
     transition: 0.5s;
-} */
+    opacity: 0%;
+}
 
 #info.ready {
     display: flex;
+    animation-name: showinfo;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes showinfo{
+    from {opacity: 0%;}
+    to {opacity: 100%;}
 }
 
 #duration {
@@ -297,4 +306,9 @@ i.fa-xmark{
 
 .download-data div ul > li:hover {
     background-color: #606060;
+}
+
+#download.progress {
+    cursor: wait;
+    background: #23272a;
 }

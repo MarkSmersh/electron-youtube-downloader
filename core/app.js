@@ -66,7 +66,23 @@ function isValue (e) {
 }
 
 function calculateLength() {
-    console.log('trigger')
-    const calculateLength = new Event('calculateLength')
-    window.dispatchEvent(calculateLength)
+    window.dispatchEvent(new Event('calculateLength'))
+}
+
+function changeQuality (e) {
+    const quality = document.getElementById('quality').innerText
+    if (e.innerText == quality) return
+    window.dispatchEvent(new CustomEvent('changeQuality', { detail: e.innerText}))
+    calculateLength()
+}
+
+function changeFormat (e) {
+    const format = document.getElementById('format').innerText
+    if (e.innerText == format) return
+    window.dispatchEvent(new CustomEvent('changeFormat', { detail: e.innerText}))
+    calculateLength()
+}
+
+function sendDownload () {
+    window.dispatchEvent(new Event('download'))
 }
