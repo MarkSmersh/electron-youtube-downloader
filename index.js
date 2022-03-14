@@ -17,21 +17,20 @@ const createWindow = () => {
             nodeIntegration: true,
             preload: path.join(__dirname, './core/preload.js')
         },
-        titleBarStyle: 'default',
-        titleBarOverlay: {
-            color: '#23272a',
-            symbolColor: '#FFFFFF'
-        },
         resizable: false,
         fullscreen: false,
-        fullscreenable: false,
+        fullscreenable: false
     })
     win.loadFile('./core/index.html')
-    win.removeMenu()
+    // win.removeMenu()
 }
 
 app.on('ready', () => {
     createWindow()
+})
+
+app.on('quit', () => {
+    fs.rmSync('./tmp', { recursive: true, force: true });
 })
 
 ipcMain.handle('info', async (e, link) => {
@@ -49,10 +48,19 @@ ipcMain.handle('info', async (e, link) => {
     return result
 })
 
-ipcMain.handle('download', async (e, info, audio, video, path) => {
+ipcMain.handle('download', async (e, info, audio, video, filepath, rawTitle) => {
     const result = new Stream.PassThrough({ highWaterMark: 1024 * 512 });
     const ffSet = getFFSet (audio, video)
     const ffmpegProcess = cp.spawn(ffmpegPath, ffSet.command, ffSet.set);
+
+    function mirrorSymbols (string) {
+        var stringArr = string.split('')
+        for (let i = 0; i < stringArr.length; i++) {
+            if (stringArr[i] == '/' || stringArr[i] == '|') stringArr[i] = '-'
+        }
+        return stringArr.join('')
+    }
+    const title = mirrorSymbols(rawTitle)
 
     if (audio !== -1 && video !== -1) {
         var audioStream = ytdl.downloadFromInfo(info, { quality: audio });
@@ -68,7 +76,8 @@ ipcMain.handle('download', async (e, info, audio, video, path) => {
     }
 
     ffmpegProcess.stdio[ffSet.set.stdio.length - 1].pipe(result);
-    var str = result.pipe(fs.createWriteStream(path))
+    if (!fs.existsSync(filepath)) fs.mkdirSync(filepath)
+    var str = result.pipe(fs.createWriteStream(`${filepath}/${title}`))
     const response = await new Promise ((resolve) => {
         str.on ('finish', () => {
             resolve({"ok": true, "response": "Video has downloaded"})
@@ -90,9 +99,13 @@ ipcMain.handle('pic', async (e, url, uri) => {
             })
     
             res.on('end', () => {
-                let path = `./core/${uri}`
-                fs.writeFileSync(path, result.read())
-                resolve({"ok": true, "response": uri})
+                var filepath = uri.split('/')
+                filepath.pop()
+                filepath = filepath.join('/')
+                if (!fs.existsSync(filepath)) fs.mkdirSync(filepath)
+                fs.writeFileSync(uri, result.read())
+                let fullfilepath = path.resolve(uri)
+                resolve({"ok": true, "response": fullfilepath})
             })
 
             res.on('error', (e) => {
@@ -111,6 +124,10 @@ ipcMain.handle('filter', (e, formats) => {
 })
 
 ipcMain.handle('write', (e, file, data) => {
+    var filepath = file.split('/')
+    filepath.pop()
+    filepath = filepath.join('/')
+    if (!fs.existsSync(filepath)) fs.mkdirSync(filepath)
     fs.writeFileSync(file, JSON.stringify(data))
     return true
 })

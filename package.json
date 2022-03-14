@@ -22,8 +22,10 @@
   },
   "homepage": "https://github.com/MarkSmersh/electron-youtube-downloader#readme",
   "dependencies": {
-    "electron": "^17.1.0",
     "ffmpeg-static": "^5.0.0",
     "ytdl-core": "^4.11.0"
+  },
+  "devDependencies": {
+    "electron": "^17.1.0"
   }
 }

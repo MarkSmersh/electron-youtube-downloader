@@ -3,14 +3,14 @@ const { ipcRenderer } = require ('electron')
 window.addEventListener('info', async (e) => {
     const info = await ipcRenderer.invoke('info', e.detail.link)
     const formats = await ipcRenderer.invoke ('filter', info.response.formats)
-    await ipcRenderer.invoke('write', "./core/temp/video_info.json", info.response)
-    await ipcRenderer.invoke('write', "./core/temp/video_formats.json", formats)
+    await ipcRenderer.invoke('write', "./tmp/video_info.json", info.response)
+    await ipcRenderer.invoke('write', "./tmp/video_formats.json", formats)
     if (info.ok) {
         videoDetails = info.response.player_response.videoDetails
         document.getElementById('title').innerText = videoDetails.title
         document.getElementById('info').className += ' ready'
         const thumbnail = videoDetails.thumbnail.thumbnails[videoDetails.thumbnail.thumbnails.length - 1].url
-        ipcRenderer.invoke('pic', thumbnail, 'assets/thumbnail.jpeg').then((e) => {
+        ipcRenderer.invoke('pic', thumbnail, './tmp/thumbnail.jpeg').then((e) => {
             if (e.ok) {
                 const preview = document.getElementById('thumbnail')
                 preview.setAttribute('src', e.response)
@@ -35,12 +35,12 @@ window.addEventListener('info', async (e) => {
 
 window.addEventListener('download', async (e) => {
     const download = document.getElementById('download')
-    if (download.innerText == "Video has downloaded!" || download.innerText == "In progress...") return
-    const info    = await ipcRenderer.invoke('read', './core/temp/video_info.json')
-    const formats = await ipcRenderer.invoke('read', './core/temp/video_formats.json') 
+    if (download.innerText == "File has downloaded!" || download.innerText == "In progress...") return
+    const info    = await ipcRenderer.invoke('read', './tmp/video_info.json')
+    const formats = await ipcRenderer.invoke('read', './tmp/video_formats.json') 
     const format  = document.getElementById('format').innerText
     const quality = document.getElementById('quality').innerText
-    var audio = -1, video = -1, index = -1
+    var audio = -1, video = -1, index = -1, audioQ = -1, videoQ = -1
     
     download.className += ' progress'
     download.innerText = "In progress..."
@@ -53,8 +53,10 @@ window.addEventListener('download', async (e) => {
             }
         }
         video = formats.video[index].itag
+        videoQ = formats.video[index].quality
         if (format === 'video + audio') {
             audio = formats.audio[0].itag
+            audioQ = formats.audio[0].quality
         }
     }
     else if (format === 'audio') {
@@ -65,13 +67,18 @@ window.addEventListener('download', async (e) => {
             }
         }
         audio = formats.audio[index].itag
+        audioQ = formats.audio[index].quality
     }
 
     function getTitle (info, audio, video) {
-        if (video === -1 && audio !== -1) {
-            return `${info.videoDetails.title}.mp3`
-        } else {
-            return `${info.videoDetails.title}.mp4`
+        if (video !== -1 && audio !== -1) {
+            return `${info.videoDetails.title}_${videoQ}p_${audioQ}kbps.mp4`
+        } 
+        else if (video !== -1 && audio === -1) {
+            return `${info.videoDetails.title}_${videoQ}p.mp4`
+        }
+        else if (video === -1 && audio !== -1) {
+            return `${info.videoDetails.title}_${audioQ}kbps.mp3`
         }
     }
 
@@ -82,12 +89,13 @@ window.addEventListener('download', async (e) => {
         info,
         audio,
         video,
-        `./downloaded/${title}`
+        './downloaded',
+        title
     )
 
     if (result.ok) {
         download.className = deleteClass(download.className, 'progress')
-        download.innerText = "Video has downloaded!"
+        download.innerText = "File has downloaded!"
     }
 })
 
@@ -105,7 +113,7 @@ window.addEventListener('changeFormat', async (e) => {
     var format = e.detail
     document.getElementById('format').innerHTML = format
     if (format == 'video + audio') format = 'video'
-    const formats = await ipcRenderer.invoke('read', './core/temp/video_formats.json') 
+    const formats = await ipcRenderer.invoke('read', './tmp/video_formats.json') 
     document.getElementById('qualities').innerHTML = calculateFormat(format, formats)
     document.getElementById('quality').innerText = formats[format][0].quality
 })
@@ -126,7 +134,7 @@ window.addEventListener('changeQuality', async (e) => {
 })
 
 async function calculateLength() {
-    const formats  = await ipcRenderer.invoke('read', './core/temp/video_formats.json') 
+    const formats  = await ipcRenderer.invoke('read', './tmp/video_formats.json') 
     const format   = document.getElementById('format').innerText
     const quality  = document.getElementById('quality').innerText
     const download = document.getElementById('download')
@@ -154,7 +162,6 @@ async function calculateLength() {
         }
         contentLength += parseInt(formats.audio[index].contentLength, 10)
     }
-    console.log(contentLength)
     download.innerText = `Download | ${Math.round(contentLength / 1000000 * 100) / 100}MB`
 }
 

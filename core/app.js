@@ -39,9 +39,7 @@ function isClear(e) {
             classArray[classArray.indexOf('fa-magnifying-glass')] = 'fa-xmark'
             e.className = classArray.join(' ')
             link.setAttribute('disabled', 'disabled')
-            console.log(1)
-            const ev = window.dispatchEvent(getInfo)
-            console.log(ev)
+            window.dispatchEvent(getInfo)
             link.className += ' disabled'
             e.className += ' disabled'
         }
@@ -71,14 +69,16 @@ function calculateLength() {
 
 function changeQuality (e) {
     const quality = document.getElementById('quality').innerText
-    if (e.innerText == quality) return
+    const download = document.getElementById('download').innerText
+    if (e.innerText == quality || download == 'In progress...') return
     window.dispatchEvent(new CustomEvent('changeQuality', { detail: e.innerText}))
     calculateLength()
 }
 
 function changeFormat (e) {
     const format = document.getElementById('format').innerText
-    if (e.innerText == format) return
+    const download = document.getElementById('download').innerText
+    if (e.innerText == format || download == 'In progress...') return
     window.dispatchEvent(new CustomEvent('changeFormat', { detail: e.innerText}))
     calculateLength()
 }

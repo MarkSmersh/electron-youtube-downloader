@@ -29,17 +29,17 @@ function formatFilter (formats) {
             (
                 {
                     "itag": format.itag,
-                    "quality": format.qualityLabel.slice(0, -1),
+                    "quality": format.qualityLabel.split('p')[0],
                     "contentLength": format.contentLength
                 }
             )
           }
-          if (!includesQuality(result.video, format.qualityLabel.slice(0, -1))) {
+          if (!includesQuality(result.video, format.qualityLabel.split('p')[0])) {
             result.video.push
             (
                 {
                     "itag": format.itag,
-                    "quality": format.qualityLabel.slice(0, -1),
+                    "quality": format.qualityLabel.split('p')[0],
                     "contentLength": format.contentLength
                 }
             )
