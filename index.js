@@ -52,16 +52,18 @@ ipcMain.handle('download', async (e, info, audio, video, filepath, rawTitle) => 
     const result = new Stream.PassThrough({ highWaterMark: 1024 * 512 });
     const ffSet = getFFSet (audio, video)
     const ffmpegProcess = cp.spawn(ffmpegPath, ffSet.command, ffSet.set);
-
+    
     function mirrorSymbols (string) {
         var stringArr = string.split('')
         for (let i = 0; i < stringArr.length; i++) {
-            if (stringArr[i] == '/' || stringArr[i] == '|') stringArr[i] = '-'
+            if (stringArr[i] == '/' || stringArr[i] == '|' || stringArr[i] == ':') stringArr[i] = '-'
         }
         return stringArr.join('')
     }
     const title = mirrorSymbols(rawTitle)
-
+    
+    console.log(ffmpegPath)
+    console.log(filepath, title)
     if (audio !== -1 && video !== -1) {
         var audioStream = ytdl.downloadFromInfo(info, { quality: audio });
         audioStream.pipe(ffmpegProcess.stdio[3]);

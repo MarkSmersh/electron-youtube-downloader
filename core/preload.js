@@ -102,7 +102,8 @@ window.addEventListener('download', async (e) => {
 function secsToDuration (secs) {
     const minutes = Math.floor(secs / 60)
     const seconds = secs - minutes * 60
-    return `${minutes}:${seconds}`
+    if (seconds < 10) return `${minutes}:0${seconds}`
+    else `${minutes}:${seconds}`
 }
 
 window.addEventListener('calculateLength', async () => {

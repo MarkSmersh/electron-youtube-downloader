@@ -39,8 +39,11 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
+node_modules/ 
 jspm_packages/
+
+# Realese project directory
+release/ 
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
