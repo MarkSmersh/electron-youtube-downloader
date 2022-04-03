@@ -40,7 +40,7 @@ window.addEventListener('download', async (e) => {
     const formats = await ipcRenderer.invoke('read', './tmp/video_formats.json') 
     const format  = document.getElementById('format').innerText
     const quality = document.getElementById('quality').innerText
-    var audio = -1, video = -1, index = -1, audioQ = -1, videoQ = -1
+    var audio = -1, video = -1, index = -1, audioQ = -1, videoQ = -1, videoBitrate = -1
     
     download.className += ' progress'
     download.innerText = "In progress..."
@@ -54,6 +54,7 @@ window.addEventListener('download', async (e) => {
         }
         video = formats.video[index].itag
         videoQ = formats.video[index].quality
+        videoBitrate = formats.video[index].bitrate
         if (format === 'video + audio') {
             audio = formats.audio[0].itag
             audioQ = formats.audio[0].quality
@@ -90,7 +91,8 @@ window.addEventListener('download', async (e) => {
         audio,
         video,
         './downloaded',
-        title
+        title,
+        { audio: audioQ, video: videoBitrate }
     )
 
     if (result.ok) {
@@ -102,7 +104,8 @@ window.addEventListener('download', async (e) => {
 function secsToDuration (secs) {
     const minutes = Math.floor(secs / 60)
     const seconds = secs - minutes * 60
-    return `${minutes}:${seconds}`
+    if (seconds < 10) return `${minutes}:0${seconds}`
+    else return `${minutes}:${seconds}`
 }
 
 window.addEventListener('calculateLength', async () => {

@@ -30,7 +30,8 @@ function formatFilter (formats) {
                 {
                     "itag": format.itag,
                     "quality": format.qualityLabel.split('p')[0],
-                    "contentLength": format.contentLength
+                    "contentLength": format.contentLength,
+                    "bitrate": format.bitrate
                 }
             )
           }
@@ -40,7 +41,8 @@ function formatFilter (formats) {
                 {
                     "itag": format.itag,
                     "quality": format.qualityLabel.split('p')[0],
-                    "contentLength": format.contentLength
+                    "contentLength": format.contentLength,
+                    "bitrate": format.bitrate
                 }
             )
           }

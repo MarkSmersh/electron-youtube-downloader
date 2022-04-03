@@ -9,8 +9,6 @@ const ffmpegPath = require ('ffmpeg-static')
 const getFFSet = require ('./core/utils/set')
 const formatFilter = require ('./core/utils/formatFilter')
 
-
-
 const createWindow = () => {    
     const win = new BrowserWindow ({ width: 1000, height: 600, 
         webPreferences: {
@@ -48,45 +46,77 @@ ipcMain.handle('info', async (e, link) => {
     return result
 })
 
-ipcMain.handle('download', async (e, info, audio, video, filepath, rawTitle) => {
-    const result = new Stream.PassThrough({ highWaterMark: 1024 * 512 });
-    const ffSet = getFFSet (audio, video)
-    const ffmpegProcess = cp.spawn(ffmpegPath, ffSet.command, ffSet.set);
-
-    function mirrorSymbols (string) {
-        var stringArr = string.split('')
+ipcMain.handle('download', async (e, info, audio, video, filepath, rawTitle, qualities) => {
+    const title = (() => {
+        var stringArr = rawTitle.split('')
         for (let i = 0; i < stringArr.length; i++) {
-            if (stringArr[i] == '/' || stringArr[i] == '|') stringArr[i] = '-'
+            let badSymbols = ['/', '|', ':']
+            if (badSymbols.includes(stringArr[i])) stringArr[i] = '-'
         }
         return stringArr.join('')
-    }
-    const title = mirrorSymbols(rawTitle)
-
-    if (audio !== -1 && video !== -1) {
-        var audioStream = ytdl.downloadFromInfo(info, { quality: audio });
-        audioStream.pipe(ffmpegProcess.stdio[3]);
-        var videoStream = ytdl.downloadFromInfo(info, { quality: video });
-        videoStream.pipe(ffmpegProcess.stdio[4]);
-    } else if (audio !== -1) {
-        var audioStream = ytdl.downloadFromInfo(info, { quality: audio });
-        audioStream.pipe(ffmpegProcess.stdio[2]);
-    } else if (video !== -1) {
-        var videoStream = ytdl.downloadFromInfo(info, { quality: video });
-        videoStream.pipe(ffmpegProcess.stdio[2]);
-    }
-
-    ffmpegProcess.stdio[ffSet.set.stdio.length - 1].pipe(result);
-    if (!fs.existsSync(filepath)) fs.mkdirSync(filepath)
-    var str = result.pipe(fs.createWriteStream(`${filepath}/${title}`))
-    const response = await new Promise ((resolve) => {
-        str.on ('finish', () => {
-            resolve({"ok": true, "response": "Video has downloaded"})
+    })()
+    
+    const Files = await new Promise((resolve) => {
+        const streams = []
+        if (audio !== -1) {
+            let path = './tmp/audio.weba'
+            let AudioStream = ytdl.downloadFromInfo(info, { quality: audio })
+            streams.push({ stream: AudioStream, path: path })
+        }
+        if (video !== -1) {
+            let path = './tmp/video.webm'
+            let VideoStream = ytdl.downloadFromInfo(info, { quality: video })
+            streams.push({ stream: VideoStream, path: path })
+        }
+        for (let i = 0; i < streams.length; i++) {
+            if (!fs.existsSync('./tmp/')) fs.mkdirSync('./tmp/')
+            let WriteStream = streams[i].stream.pipe(fs.createWriteStream(streams[i].path))
+            WriteStream.on('finish', () => {
+                if (i === streams.length - 1) {
+                    let paths = (() => {
+                        let result = []
+                        for (let i = 0; i < streams.length; i++) {
+                            result.push(streams[i].path)
+                        }
+                        return result
+                    })()
+                    resolve({ ok: true, response: paths })
+                }
+            })
+            WriteStream.on('error', e => {
+                resolve({ ok: true, error: e.message })
+            })
+        }
+    })
+    if (!Files.ok) return Files
+    const Result = await new Promise ((resolve) => {
+        const commandLine = ["-loglevel", "8", "-hide_banner", "-y"]
+        for (let i = 0; i < Files.response.length; i++) {
+            commandLine.push('-i', Files.response[i])
+        }
+        if (audio !== -1 && video === -1) {
+            commandLine.push('-vn', '-b:a', `${qualities.audio}k`, '-ac', '2')
+        }
+        if (audio === -1 && video !== -1) {
+            let videoB = Math.round(qualities.video / 1000)
+            commandLine.push('-an', '-b:v', `${videoB}k`, '-bufsize', `${videoB}k`)
+        }
+        if (audio !== -1 && video !== -1) {
+            let videoB = Math.round(qualities.video / 1000)
+            commandLine.push('-b:a', `${qualities.audio}k`, '-ac', '2', '-b:v', `${videoB}k`, '-bufsize', `${videoB}k`)
+        }
+        commandLine.push(`${filepath}/${title}`)
+        if (!fs.existsSync(filepath)) fs.mkdirSync(filepath)
+        const ffmpegProcess = cp.spawn(ffmpegPath, commandLine, { windowsHide: true });
+        ffmpegProcess.on('exit', () => {
+            resolve({ ok: true, response: 'File has downloaded!' })
         })
-        str.on ('error', (e) => {
-            resolve({"ok": false, "error": e.message})
+        ffmpegProcess.on('error', (e) => {
+            console.log(e)
+            resolve({ ok: false, error: e.message })
         })
     })
-    return response
+    return Result
 })
 
 ipcMain.handle('pic', async (e, url, uri) => {
