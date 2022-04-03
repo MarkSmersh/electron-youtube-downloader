@@ -47,6 +47,9 @@ downloaded/
 # Realese project directory
 release/ 
 
+# Realese project directory
+release/ 
+
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
